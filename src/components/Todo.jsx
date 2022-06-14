@@ -6,11 +6,16 @@ const Todo = () =>{
     const [todos , setTodos] = React.useState([]);
     const [loading , setLoading] = React.useState(false);
     const[error , setError] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const [totalCount , setTotalCount] = React.useState(0);
 
     const getTodo = () => {
          setLoading(true);
-        fetch(" http://localhost:3001/todos")
-        .then((res) => res.json())
+        fetch(`http://localhost:3001/todos?_page=${page}&_limit=3`)
+        .then((res) => {
+            setTotalCount(res.headers.get("X-Total-Count"))
+            return res.json()
+        })
         .then((res) => {
             setTodos(res);
             //  setLoading(false);
@@ -27,7 +32,7 @@ const Todo = () =>{
 
     React.useEffect(() => {
          getTodo()
-    } , [])
+    } , [page])
 
     const addTodo = () => {
        setLoading(true);
@@ -70,6 +75,12 @@ const Todo = () =>{
            </div>
            
             <TodoList data = {todos}/>
+
+            <div>
+                   <button onClick = {() => setPage(page-1)} disabled = {page === 1}>PREVIOUS</button>
+                   <span>{" "}{page}{" "}</span>
+                   <button onClick = {() => setPage(page+1)} disabled = {page === Math.ceil(totalCount/3)}>NEXT</button>
+            </div>
          </>
     )
 }
